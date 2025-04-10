@@ -1,0 +1,279 @@
+﻿@model SocialNetwork.Persistance.Models.ViewModel.dbo.AmigosViewModel
+
+@{
+    ViewData["Title"] = "Look Friends";
+}
+
+<div class="container">
+    <div class="row">
+        <!-- Columna Izquierda: Buscador de Amigos -->
+        <div class="col-md-3">
+            <div class="card shadow-sm" style="position: sticky; top: 20px;">
+                <div class="card-body">
+                    <h2 class="text-start">¿Buscas a alguien?</h2>
+                    <form asp-action="LookFriends" method="post">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="friendsName" placeholder="Buscar por nombre..." value="@ViewData["friendsName"]" />
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Mostrar mensaje de éxito -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <!-- Mostrar mensaje de error o advertencia -->
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-warning">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    @if (Model != null && Model.BuscadorFriends != null && Model.BuscadorFriends.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var buscador in Model.BuscadorFriends)
+                            {
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="@buscador.Foto" alt="Foto de @buscador.Nombre" width="40" height="40" class="rounded-circle me-2" />
+                                    <div class="flex-grow-1">
+                                        <strong>@buscador.Nombre @buscador.Apellido</strong>
+                                        <br />
+                                        <small>@buscador.UserName</small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <form asp-action="AddFriend" method="post">
+                                            <input type="hidden" name="@buscador.Nombre" value="@buscador.Id" />
+                                            <input type="hidden" name="AmigosDto.UsuarioID2" value="@buscador.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm px-1 py-0">
+                                                Agregar <i class="bi bi-person-add"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Central: Publicaciones -->
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-center">Publicaciones</h2>
+
+                    @if (Model == null || Model.Publicaciones == null || !Model.Publicaciones.Any())
+                    {
+                        <div class="alert alert-warning text-center" role="alert">
+                            <h4 class="mb-0">No tienes publicaciones recientes de tus amigos.</h4>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var post in Model.Publicaciones)
+                        {
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(post.Foto))
+                                    {
+                                        <img src="@post.Foto" class="rounded-circle me-2" alt="" width="30" height="30" />
+                                    }
+                                    <strong>@post.Usuario</strong>
+                                    <p class="card-text">@post.Contenido</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">Publicado el @post.FechaPublicacion?.ToString("dd/MM/yyyy")</small>
+                                    </p>
+
+                                    @if (!string.IsNullOrEmpty(post.Imagen))
+                                    {
+                                        <img src="@post.Imagen" class="img-fluid rounded" alt="Imagen de la publicación">
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(post.Video))
+                                    {
+                                        <div class="ratio ratio-16x9">
+                                            @if (post.Video.Contains("youtube.com") || post.Video.Contains("youtu.be"))
+                                            {
+                                                string youtubeEmbedUrl = post.Video;
+
+                                                if (youtubeEmbedUrl.Contains("youtube.com"))
+                                                {
+                                                    var uri = new Uri(youtubeEmbedUrl);
+                                                    var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                                                    var videoId = queryParams["v"];
+                                                    youtubeEmbedUrl = $"https://www.youtube.com/embed/{videoId}";
+                                                }
+                                                else if (youtubeEmbedUrl.Contains("youtu.be"))
+                                                {
+                                                    youtubeEmbedUrl = youtubeEmbedUrl.Replace("youtu.be", "youtube.com/embed");
+                                                }
+
+                                                <iframe width="100%" height="315" src="@youtubeEmbedUrl" title="YouTube video player"
+                                                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                        allowfullscreen>
+                                                </iframe>
+                                            }
+                                            else
+                                            {
+                                                <video width="100%" controls>
+                                                    <source src="@post.Video" type="video/mp4">
+                                                    Tu navegador no soporta el elemento de video.
+                                                </video>
+                                            }
+                                        </div>
+                                    }
+
+
+                                    <div class="mt-3">
+                                        <form asp-controller="Comentarios" asp-action="CommentFriendsPost" method="post" class="d-flex">
+                                            <input type="hidden" name="ComentariosDto.PublicacionID" value="@post.PublicacionID" />
+                                            <input type="text" name="ComentariosDto.Contenido" class="form-control me-2" placeholder="Comentar..." required />
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                Enviar <i class="bi bi-send"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Sección de Comentarios -->
+                                    <div id="post-@post.PublicacionID" class="comentarios-container mt-3">
+                                        <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#comentarios-@post.PublicacionID" aria-expanded="false" aria-controls="comentarios-@post.PublicacionID">
+                                            @if (Model?.Comments != null && Model.Comments.Any(c => c.PublicacionID == post.PublicacionID))
+                                            {
+                                                <span>Mostrar comentarios</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No hay comentarios aún</span>
+                                            }
+                                        </button>
+
+                                        <div id="comentarios-@post.PublicacionID" class="collapse">
+                                            @if (Model?.Comments != null)
+                                            {
+                                                var comentariosFiltrados = Model.Comments
+                                                .Where(c => c.PublicacionID == post.PublicacionID)
+                                                .OrderBy(c => c.FechaComentario)
+                                                .ToList();
+
+                                                @if (!comentariosFiltrados.Any())
+                                                {
+                                                    <p class="text-muted">No hay comentarios aún.</p>
+                                                }
+                                                else
+                                                {
+                                                    <ul class="list-group">
+                                                        @foreach (var comentario in comentariosFiltrados)
+                                                        {
+                                                            <li class="list-group-item">
+                                                                @if (!string.IsNullOrEmpty(comentario.Foto))
+                                                                {
+                                                                    <img src="@comentario.Foto" class="rounded-circle me-2" alt="" width="30" height="30" />
+                                                                }
+                                                                <strong>@comentario.Usuario</strong>
+                                                                <p class="mb-2">@comentario.Contenido</p>
+                                                                <span class="text-muted" style="font-size: 0.8rem;"> - @comentario.FechaComentario</span>
+                                                                <div>
+                                                                    <!-- Botón para replicar comentario -->
+                                                                    <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#reply-@comentario.ComentarioID" aria-expanded="false" aria-controls="reply-@comentario.ComentarioID">
+                                                                        Replicar comentario
+                                                                    </button>
+                                                                    <!-- Formulario para replicar comentario -->
+                                                                    <div class="collapse" id="reply-@comentario.ComentarioID">
+                                                                        <form asp-controller="Comentarios" asp-action="CommentFriendsPost" method="post" class="d-flex mt-2">
+                                                                            <input type="hidden" name="ComentariosDto.PublicacionID" value="@comentario.PublicacionID" />
+                                                                            <input type="hidden" name="ComentariosDto.ComentarioPadreID" value="@comentario.ComentarioID" />
+                                                                            <input type="text" name="ComentariosDto.Contenido" class="form-control form-control-sm me-2" placeholder="Escribe tu réplica..." style="max-width: 300px;" required />
+                                                                            <button type="submit" class="btn btn-outline-primary btn-sm">Enviar réplica</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <p class="text-muted">No hay comentarios aún.</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="card shadow-sm" style="position: sticky; top: 20px;">
+                <div class="card-body">
+                    <h2 class="card-title text-center">Amigos</h2>
+
+                    @if (Model?.Friends == null || !Model.Friends.Any())
+                    {
+                        <div class="alert alert-warning text-center">Aún no tienes amigos.</div>
+                    }
+                    else
+                    {
+                        <ul class="list-group" style="max-height: 400px; overflow-y: auto;">
+                            @foreach (var friend in Model.Friends)
+                            {
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="@friend.Foto" alt="Foto del amigo" width="40" height="40" class="rounded-circle me-2" />
+                                    <div>
+                                        <strong>@friend.Nombre @friend.Apellido</strong>
+                                        <small class="d-block text-muted">@friend.NombreUsuario</small>
+                                        <small class="text-muted">Amigos desde: @friend.FechaAmistad?.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <form id="deleteForm-@friend.AmistadID" asp-action="Delete" method="post">
+                                            <input type="hidden" name="AmigosDto.AmigoID" value="@friend.AmistadID" />
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="return confirmarEliminacion(event, '@friend.AmistadID')">
+                                                <i class="bi bi-person-dash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @section Scripts {
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                function confirmarEliminacion(event, amigoID) {
+                    event.preventDefault(); // Prevenir el envío del formulario por defecto
+
+                    Swal.fire({
+                        title: "¿Estás seguro?",
+                        text: "Esta acción no se puede deshacer.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Sí, eliminar",
+                        cancelButtonText: "Cancelar"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById("deleteForm-" + amigoID).submit(); // Enviar el formulario si se confirma
+                        }
+                    });
+                }
+            </script>
+        }

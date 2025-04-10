@@ -1,0 +1,205 @@
+﻿@model SocialNetwork.Application.Model.ViewModel.PerfilWithPostModel
+
+@{
+    ViewData["Title"] = "Perfil de Usuario";
+}
+
+<h1 class="text-center my-4 text-primary">Perfil de Usuario</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Columna del perfil -->
+        <div class="col-md-4">
+            @*             <nav class="d-flex flex-column justify-content-center text-white p-3" style="background: linear-gradient(180deg, #000000, #434343); height: 100vh;">
+            *@
+            <div class="card shadow-lg border-0 rounded-4" style="position: sticky; top: 20px;">
+                <div class="card-header text-center bg-dark text-light" style="background: linear-gradient(180deg, #000000, #434343); height: 10vh;">
+                    <h4>@Model.PerfilViewModel.Nombre @Model.PerfilViewModel.Apellido</h4>
+                    <small class="text-muted">@Model.PerfilViewModel.Email</small>
+                </div>
+                <div class="card-body text-center">
+                    <img src="@Model.PerfilViewModel.Foto" class="img-fluid rounded-circle border border-primary p-1"
+                         alt="Foto de @Model.PerfilViewModel.Nombre"
+                         style="height: 250px; object-fit: cover;">
+
+                    <dl class="row mt-3">
+                        <dt class="col-sm-4 fw-bold">Nombre</dt>
+                        <dd class="col-sm-8">@Model.PerfilViewModel.Nombre</dd>
+                        <dt class="col-sm-4 fw-bold">Apellido</dt>
+                        <dd class="col-sm-8">@Model.PerfilViewModel.Apellido</dd>
+                        <dt class="col-sm-4 fw-bold">Teléfono</dt>
+                        <dd class="col-sm-8">@Model.PerfilViewModel.Telefono</dd>
+                        <dt class="col-sm-4 fw-bold">Email</dt>
+                        <dd class="col-sm-8">@Model.PerfilViewModel.Email</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna de Publicaciones -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header text-center bg-dark text-light" style="background: linear-gradient(180deg, #000000, #434343); height: 10vh;">
+                        @*                 <div class="card-header text-center bg-primary text-light">
+                        *@                    <h4>Mis Publicaciones</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.MyPosts == null || !Model.MyPosts.Any())
+                        {
+                            <div class="alert alert-warning text-center" role="alert">
+                                <h4 class="mb-0">No tienes publicaciones aún.</h4>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var post in Model.MyPosts)
+                            {
+                                <div class="mb-4">
+                                    <!-- Espacio adicional entre posts -->
+                                    <div class="d-flex align-items-center mb-3">
+                                        @if (!string.IsNullOrEmpty(post.FotoUsuario))
+                                        {
+                                            <img src="@post.FotoUsuario" class="rounded-circle me-2" alt="Foto de perfil" width="40" height="40" />
+                                        }
+                                        <strong>@post.Usuario</strong>
+                                        <span class="text-muted ms-2" style="font-size: 0.9rem;">@post.FechaPublicacion</span>
+                                    </div>
+                                    <p class="mb-2">@post.Contenido</p>
+
+                                    @if (!string.IsNullOrEmpty(post.Imagen))
+                                    {
+                                        <img src="@post.Imagen" class="img-fluid rounded mb-3" alt="Imagen de la publicación">
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(post.Video))
+                                    {
+                                        var videoUrl = post.Video;
+                                        var videoId = string.Empty;
+
+                                        if (videoUrl.Contains("youtube.com"))
+                                        {
+                                            var uri = new Uri(videoUrl);
+                                            var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                                            videoId = queryParams["v"];
+                                        }
+                                        else if (videoUrl.Contains("youtu.be"))
+                                        {
+                                            videoId = videoUrl.Substring(videoUrl.LastIndexOf("/") + 1);
+                                        }
+
+                                        if (!string.IsNullOrEmpty(videoId))
+                                        {
+                                            <div class="mt-3 video-container mb-3">
+                                                <iframe src="https://www.youtube.com/embed/@videoId" frameborder="0" allowfullscreen></iframe>
+                                            </div>
+                                        }
+                                    }
+
+                                    <!-- Formulario de comentarios -->
+                                    <div class="mt-3">
+                                        <form asp-controller="Perfil" asp-action="AddPerfilComment" method="post" class="d-flex">
+                                            <input type="hidden" name="ComentariosDto.PublicacionID" value="@post.PublicacionID" />
+                                            <input type="text" name="ComentariosDto.Contenido" class="form-control me-2" placeholder="Comentar..." required />
+                                            <button type="submit" class="btn btn-outline-primary">Enviar</button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Botón para ver comentarios -->
+                                    <button class="btn btn-link mt-2" onclick="toggleComentarios('post-@post.PublicacionID')">
+                                        Ver comentarios
+                                    </button>
+
+                                    <!-- Sección de comentarios -->
+                                    <div id="post-@post.PublicacionID" class="comentarios-container d-none mt-3">
+                                        @if (Model?.Comentarios != null && Model.Comentarios.Any())
+                                        {
+                                            var comentariosFiltrados = Model.Comentarios
+                                            .Where(c => c.PublicacionID == post.PublicacionID)
+                                            .OrderBy(c => c.FechaComentario)
+
+                                            .ToList();
+
+                                            <ul class="list-group">
+                                                @if (!comentariosFiltrados.Any())
+                                                {
+                                                    <p class="text-muted">No hay comentarios aún.</p>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (var comentario in comentariosFiltrados)
+                                                    {
+                                                        <li class="list-group-item">
+                                                            @if (!string.IsNullOrEmpty(comentario.Foto))
+                                                            {
+                                                                <img src="@comentario.Foto" class="rounded-circle me-2" alt="" width="30" height="30" />
+                                                            }
+                                                            <strong>@comentario.Usuario</strong>
+                                                            <p class="mb-2">@comentario.Contenido</p>
+                                                            <span class="text-muted" style="font-size: 0.8rem;"> - @comentario.FechaComentario</span>
+
+                                                            <!-- Botón para replicar comentario -->
+                                                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#reply-@comentario.ComentarioID" aria-expanded="false" aria-controls="reply-@comentario.ComentarioID">
+                                                                Replicar comentario
+                                                            </button>
+
+                                                            <!-- Formulario para replicar comentario -->
+                                                            <div class="collapse" id="reply-@comentario.ComentarioID">
+                                                                <form asp-controller="Perfil" asp-action="AddPerfilComentReply" method="post" class="d-flex mt-2">
+                                                                    <input type="hidden" name="ComentariosDto.PublicacionID" value="@comentario.PublicacionID" />
+                                                                    <input type="hidden" name="ComentariosDto.ComentarioPadreID" value="@comentario.ComentarioID" />
+                                                                    <input type="text" name="ComentariosDto.Contenido" class="form-control form-control-sm me-2" placeholder="Escribe tu réplica..." style="max-width: 300px;" required />
+                                                                    <button type="submit" class="btn btn-outline-primary btn-sm">Enviar réplica</button>
+                                                                </form>
+                                                            </div>
+                                                        </li>
+                                                    }
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No hay comentarios disponibles.</p>
+                                        }
+                                    </div>
+
+                                </div>
+                                <hr />
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div />
+        </div>
+    </div>
+
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* Aspect ratio 16:9 */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+            .video-container iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+        /* Estilo para la card estática */
+        .card-body img {
+            transition: none; /* Deshabilitar la transición de la imagen */
+        }
+    </style>
+
+    <script>
+        function toggleComentarios(id) {
+            var comentariosDiv = document.getElementById(id);
+            comentariosDiv.classList.toggle('d-none'); // Alterna la visibilidad del div
+        }
+    </script>

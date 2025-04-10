@@ -1,0 +1,83 @@
+﻿@* @using PatientManager.Persistance.Models.ViewModel.administracion.usuario;
+@model SaveUserViewModel
+
+@{
+    ViewData["Title"] = "Registrarse";
+}
+
+<div class="container-fluid d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #f4f7fa;">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-5">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body p-5">
+                    <h5 class="text-center mb-4 text-black fw-bold">¡Bienvenido! Crea tu cuenta</h5>
+
+                    <form method="post" asp-controller="Login" asp-action="Register">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="row mb-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                                <input asp-for="Nombre" class="form-control form-control-lg" placeholder="Ingresa tu nombre" />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Apellido" class="form-label fw-semibold"></label>
+                                <input asp-for="Apellido" class="form-control form-control-lg" placeholder="Ingresa tu apellido" />
+                                <span asp-validation-for="Apellido" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label fw-semibold"></label>
+                            <input asp-for="Correo" class="form-control form-control-lg" placeholder="Tu correo electrónico" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NombreUsuario" class="form-label fw-semibold"></label>
+                            <input asp-for="NombreUsuario" class="form-control form-control-lg" placeholder="Elige tu nombre de usuario" />
+                            <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Contraseña" class="form-label fw-semibold"></label>
+                                <input asp-for="Contraseña" class="form-control form-control-lg" type="password" placeholder="Crea una contraseña" />
+                                <span asp-validation-for="Contraseña" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="ConfirmarContraseña" class="form-label fw-semibold"></label>
+                                <input asp-for="ConfirmarContraseña" class="form-control form-control-lg" type="password" placeholder="Confirma tu contraseña" />
+                                <span asp-validation-for="ConfirmarContraseña" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TipoUsuario" class="form-label fw-semibold"></label>
+                            <select asp-for="TipoUsuario" asp-items="@ViewBag.TiposUsuarios" class="form-control form-control-lg"></select>
+                            <span asp-validation-for="TipoUsuario" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NombreConsultorio" class="form-label fw-semibold"></label>
+                            <input asp-for="NombreConsultorio" class="form-control form-control-lg" placeholder="Nombre del consultorio" />
+                            <span asp-validation-for="NombreConsultorio" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <input type="submit" value="Registrar" class="btn btn-primary btn-lg py-2" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+ *@

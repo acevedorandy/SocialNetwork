@@ -1,0 +1,56 @@
+﻿@model SocialNetwork.Application.Dtos.dbo.PublicacionesDto
+
+@{
+    ViewData["Title"] = "Publica algo";
+}
+
+<div class="container mt-5">
+    <h1 class="text-center text-primary mb-4">¡Comparte lo que tienes en mente!</h1>
+    <hr class="my-4" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form asp-action="Create" class="shadow-lg p-4 bg-light rounded" enctype="multipart/form-data">
+                <!-- Error message summary -->
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="PublicacionID" />
+
+                <!-- Contenido -->
+                <div class="form-group">
+                    <label asp-for="Contenido" class="control-label h5 text-dark">¿Qué quieres contar?</label>
+                    <textarea asp-for="Contenido" class="form-control bg-light border-info" rows="4" placeholder="Escribe aquí lo que deseas compartir..."></textarea>
+                    <span asp-validation-for="Contenido" class="text-danger"></span>
+                </div>
+
+                <!-- Imagen -->
+                <div class="mb-3">
+                    <label asp-for="File" class="form-label">Foto:</label>
+                    <input asp-for="File" type="file" class="form-control" />
+                </div>
+
+                <!-- Video -->
+                <div class="form-group">
+                    <label asp-for="Video" class="control-label h5 text-dark">Video (opcional)</label>
+                    <input asp-for="Video" class="form-control bg-light border-warning" placeholder="Enlace del video (URL)" />
+                </div>
+
+                <!-- Submit button -->
+                <div class="form-group text-center">
+                    <input type="submit" value="Publicar" class="btn btn-outline-success" style="color: green;" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Back button -->
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-outline-danger btn-sm">Volver al listado</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

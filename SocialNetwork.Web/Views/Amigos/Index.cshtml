@@ -1,0 +1,63 @@
+﻿@model IEnumerable<SocialNetwork.Persistance.Models.dbo.AmigosModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+@if (Model == null || !Model.Any())
+{
+    <h2>No hay panas</h2>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.AmigoID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UsuarioID1)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UsuarioID2)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FechaAmistad)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AmigoID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UsuarioID1)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UsuarioID2)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FechaAmistad)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                        @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}

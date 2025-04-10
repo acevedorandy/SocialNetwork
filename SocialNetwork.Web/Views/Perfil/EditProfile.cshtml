@@ -1,0 +1,102 @@
+﻿@model SocialNetwork.Application.Model.ViewModel.PerfilViewModel
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Editar Perfil</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditProfile" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label fw-bold"></label>
+                            <input asp-for="Nombre" class="form-control" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <!-- Apellido -->
+                        <div class="mb-3">
+                            <label asp-for="Apellido" class="form-label fw-bold"></label>
+                            <input asp-for="Apellido" class="form-control" />
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+
+                        <!-- Teléfono -->
+                        <div class="mb-3">
+                            <label asp-for="Telefono" class="form-label fw-bold"></label>
+                            <input asp-for="Telefono" class="form-control" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                            <input asp-for="Email" class="form-control" readonly />
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-3">
+                            <label asp-for="Contraseña" class="form-label fw-bold"></label>
+                            <input asp-for="Contraseña" class="form-control" type="password" />
+                            <span asp-validation-for="Contraseña" class="text-danger"></span>
+                        </div>
+
+                        <!-- Confirmar Contraseña -->
+                        <div class="mb-3">
+                            <label asp-for="ConfirmarContraseña" class="form-label fw-bold">Confirmar Contraseña</label>
+                            <input asp-for="ConfirmarContraseña" class="form-control" type="password" />
+                            <span asp-validation-for="ConfirmarContraseña" class="text-danger"></span>
+                        </div>
+
+                        <h2 class="text-danger small">Confirme su contraseña para guardar cambios</h2>
+
+                        <input type="hidden" asp-for="Foto" value="@Model.Foto" />
+
+                        <!-- Foto -->
+                        <div class="mb-3 text-center">
+                            <label asp-for="File" class="form-label fw-bold">Foto de perfil</label>
+                            <div class="mb-2">
+                                <img id="imgPreview" src="@(Model.Foto ?? "/img/default-avatar.png")" class="rounded-circle shadow" width="120" height="120" alt="Foto de perfil" />
+                            </div>
+                            <input asp-for="File" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                            <span asp-validation-for="File" class="text-danger"></span>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success px-4">Guardar cambios</button>
+                            <a class="btn btn-secondary px-4 ms-2" asp-controller="Perfil" asp-action="GoProfile">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const output = document.getElementById('imgPreview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+}

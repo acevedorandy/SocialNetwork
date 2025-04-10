@@ -1,0 +1,160 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using SocialNetwork.Web.Middlewares;
+@using SocialNetwork.Application.Dtos.dbo;
+@using SocialNetwork.Application.Response;
+@using SocialNetwork.Application.Helpers.web;
+@inject IHttpContextAccessor httpContext
+@{
+    var usuarios = httpContext.HttpContext.Session.Get<AuthenticationResponse>("usuario");
+    var isAdmin = usuarios != null ? usuarios.Roles.Any(r => r == "Admin") : false;
+    var isBasic = usuarios != null ? usuarios.Roles.Any(r => r == "Basic") : false;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SocialNetwork.Web</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SocialNetwork.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        /* Asegura que el contenedor principal ocupe toda la pantalla */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra de navegación fija */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            height: 100vh;
+            width: 250px; /* Ajusta el ancho según tu diseño */
+            overflow-y: auto;
+        }
+
+        /* Contenido principal: Ajusta el margen izquierdo para que no se solape con la barra */
+        .content {
+            margin-left: 250px; /* Debe coincidir con el ancho de la barra */
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+    <div class="main-container"> 
+        <!-- Barra de navegación -->
+        <nav class="d-flex flex-column justify-content-center text-white p-3" style="background: linear-gradient(180deg, #000000, #434343); height: 100vh;">
+            <div class="text-center mb-4 mt-2">
+                <!-- Ajusta el margen superior (mt-2) para mover el logo más arriba -->
+                <img src="~/images/logo/ghost.png" alt="Logo" style="max-width: 150px;" />
+                <a class="navbar-brand text-white d-block text-truncate" style="font-size: 18px;" asp-area="" asp-controller="Publicaciones" asp-action="Index">
+                    SocialNetwork.Web
+                </a>
+            </div>
+
+            <!-- Centrar las opciones de navegación -->
+            <ul class="nav flex-column align-items-center w-100">
+                @if (usuarios != null)
+                {
+                    @if (isAdmin)
+                    {
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                        </li>
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Publicaciones" asp-action="Index">Publicaciones</a>
+                        </li>
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Amigos" asp-action="LookFriends">Amigos</a>
+                        </li>
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Comentarios" asp-action="Index">Comentarios</a>
+                        </li>
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Notificaciones" asp-action="Index">Notificaciones</a>
+                        </li>
+                    }
+                    else if (isBasic)
+                    {
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Publicaciones" asp-action="Index">
+                                <i class="bi bi-house"></i> Publicaciones
+                            </a>
+                        </li>
+                        <li class="nav-item w-100 text-center">
+                            <a class="nav-link text-white" asp-area="" asp-controller="Amigos" asp-action="LookFriends">
+                                <i class="bi bi-people-fill"></i> Amigos
+                            </a>
+                        </li>
+                    }
+                    <li class="nav-item w-100 text-center">
+                        <a class="nav-link text-white" asp-area="" asp-controller="Amigos" asp-action="LookFriends">
+                            <i class="bi bi-envelope"></i> Mensajes
+                        </a>
+                    </li>
+                    <li class="nav-item w-100 text-center">
+                        <a class="nav-link text-white" asp-area="" asp-controller="Perfil" asp-action="GoProfile">
+                            <i class="bi bi-person"></i> @usuarios.UserName
+                        </a>
+                    </li>
+                    <!-- Desplegable para futuros proyectos usarlo -->
+
+                    <li class="nav-item">
+                        <a class="nav-link text-white d-flex align-items-center" data-bs-toggle="collapse" href="#configCollapse" role="button" aria-expanded="false" aria-controls="configCollapse">
+                            <i class="bi bi-gear"></i>  Configuración <i class="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <div class="collapse" id="configCollapse">
+                            <ul class="nav flex-column ms-3">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-controller="Perfil" asp-action="EditProfile">
+                                        Editar Información
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-controller="Usuarios" asp-action="ForgotPassword">
+                                        Restablecer Contraseña
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider bg-white"></li>
+@*                                 <li class="nav-item">
+                                    <a class="nav-link text-white" asp-area="" asp-controller="Amigos" asp-action="LookFriends">
+                                        Ver Amigos
+                                    </a>
+                                </li> *@
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li class="nav-item text-center">
+                        <a class="btn btn-danger text-white mt-3 px-4 py-2 rounded-pill" asp-area="" asp-controller="Usuarios" asp-action="LogOut">Cerrar sesión</a>
+                    </li>
+
+                }
+                else
+                {
+                    <li class="nav-item w-100 text-center">
+                        <a class="nav-link text-white" asp-area="" asp-controller="Usuarios" asp-action="Home"></a>
+                    </li>
+                }
+            </ul>
+        </nav>    
+        <div class="content">
+            <div class="container-fluid">
+                <main role="main" class="pb-3 p-4">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
